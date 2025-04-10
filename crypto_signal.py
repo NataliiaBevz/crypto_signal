@@ -37,7 +37,12 @@ def get_bybit_signal(symbol):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[InlineKeyboardButton(symbol[:-4], callback_data=symbol)] for symbol in SPOT_PAIRS]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("💰 Обери монету для сигналу:", reply_markup=reply_markup)
+
+    if update.message:
+        await update.message.reply_text("💰 Обери монету для сигналу:", reply_markup=reply_markup)
+    elif update.callback_query:
+        await update.callback_query.edit_message_text("💰 Обери монету для сигналу:", reply_markup=reply_markup)
+
 
 # Обробка кнопки вибору монети
 async def coin_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -76,7 +81,8 @@ async def exchange_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def back_to_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    await start(update, context)
+    await start(update.callback_query, context)
+
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
